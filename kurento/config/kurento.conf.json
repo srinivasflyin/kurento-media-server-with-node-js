@@ -1,0 +1,24 @@
+{
+  "mediaServer": {
+    "disableCuda": true,
+    "disableVaapi": true,
+    "net": {
+      "websocket": {
+        "port": 8888
+      }
+    },
+    "resources": {
+      "cpu": {
+        "default": 4
+      },
+      "gpu": false
+    }
+  },
+  "capabilities": {
+    "video": {
+      "hw-acceleration": false
+    }
+  }
+}
+
+
