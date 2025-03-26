@@ -55,7 +55,9 @@ function displayMessage(from, message, isLocal) {
   messageElement.classList.add('message', isLocal ? 'local' : 'remote');
   messageElement.innerHTML = `
     <div>
-      <div class="username">${from}</div>
+      <div class="username" style="color:#2525f1">${from && from
+        .toLowerCase()
+        .replace(/(?:^|[^a-zA-Z0-9])(\w)/g, (match, chr) => chr.toUpperCase())}</div>
       <div class="bubble">${message}</div>
       <div class="timestamp">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
     </div>
@@ -191,6 +193,7 @@ async function startCall() {
 function stopCall() {
   ws.send(JSON.stringify({ id: 'stop' }));
   localStream.getTracks().forEach(track => track.stop());
+  localStream.srcObject = null;
 }
 
 
