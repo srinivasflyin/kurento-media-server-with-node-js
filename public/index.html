@@ -10,45 +10,49 @@
 
 <body>
 
-  <!-- ✅ Video Grid -->
-  <div id="videoGrid">
-    <video id="localVideo" autoplay playsInline></video>
-  </div>
+  <!-- ✅ Container for video and chatbox -->
+  <div id="mainContainer">
+    <!-- ✅ Video Grid + Controls -->
+    <div class="video-section">
+      <div id="videoGrid">
+        <video id="localVideo" autoplay playsInline></video>
+      </div>
 
-  <!-- ✅ Chat Section -->
-  <div id="chatContainer">
-    <div id="chatBox"></div>
-    <input id="chatInput" type="text" placeholder="Type a message..." />
-    <button id="sendMessage">Send</button>
-  </div>
+      <!-- ✅ Controls directly under video -->
+      <div id="controls">
+        <button id="startCallButton">Start Call</button>
+        <button id="stopCallButton">Stop Call</button>
+        <button id="shareScreenButton">Share Screen</button>
+        <button id="raiseHandButton">✋ Raise Hand</button>
 
-  <!-- ✅ Controls -->
-  <div id="controls">
-    <button id="startCallButton">Start Call</button>
-    <button id="stopCallButton">Stop Call</button>
-    <button id="shareScreenButton">Share Screen</button>
-    <button id="raiseHandButton">✋ Raise Hand</button>
+        <!-- ✅ Emoji reactions -->
+        <button id="sendEmojiButton1">😂</button>
+        <button id="sendEmojiButton2">❤️</button>
+        <button id="sendEmojiButton3">👍</button>
+        <button id="sendEmojiButton4">🔥</button>
+        <!-- ✅ Breakout Room Controls (now under the video) -->
+        <button id="joinBreakoutRoomButton">Join Room 1</button>
+        <button id="joinBreakoutRoomButton2">Join Room 2</button>
+        <button id="leaveBreakoutRoom">Leave Room 1</button>
+        <button id="leaveBreakoutRoom2">Leave Room 2</button>
+      </div>
+    </div>
 
-    <!-- ✅ Emoji reactions -->
-    <button id="sendEmojiButton1">😂</button>
-    <button id="sendEmojiButton2">❤️</button>
-    <button id="sendEmojiButton3">👍</button>
-    <button id="sendEmojiButton4">🔥</button>
+    <!-- ✅ Chat Section -->
+    <div>
+      <div id="chatBox"></div>
+      <div class="chat-input-wrapper">
+        <input type="text" id="chatInput" placeholder="Type a message..." />
+        <button id="sendMessage">Send</button>
+      </div>
+    </div>
   </div>
 
   <!-- ✅ Waiting Room -->
   <div id="waitingRoom">
     <h2>Waiting for approval...</h2>
   </div>
-
-  <!-- ✅ Breakout Room Controls -->
-  <div id="breakoutControls">
-    <button  id="joinBreakoutRoomButton">Join Room 1</button>
-    <button  id="joinBreakoutRoomButton2">Join Room 2</button>
-    <button id="leaveBreakoutRoom">Leave Room 1</button>
-    <button  id="leaveBreakoutRoom2">Leave Room 2</button>
-  </div>
-
+  
   <script type="module" src="./index.js"></script>
 </body>
 

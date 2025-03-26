@@ -16,11 +16,13 @@ const startCallButton = document.getElementById('startCallButton');
 const shareScreenButton = document.getElementById('shareScreenButton');
 const stopCallButton = document.getElementById('stopCallButton');
 const raiseHandButton = document.getElementById('raiseHandButton');
-
-
+const sendMessageButton = document.getElementById('sendMessage');
+const chatInputBox = document.getElementById('chatInput');
 let name = prompt("Enter your name:");
 console.log('fffffffffffffff', ws);
-
+const userId = function generateUserId() {
+  return 'user-' + Math.random().toString(36).substr(2, 9);
+}()
 
 joinBreakoutRoomButton.onclick = () => joinBreakoutRoom('Room 1');
 joinBreakoutRoomButton2.onclick = () => joinBreakoutRoom('Room 2');
@@ -35,6 +37,35 @@ stopCallButton.onclick = () => stopCall();
 shareScreenButton.onclick = () => shareScreen();
 raiseHandButton.onclick = () => raiseHand();
 
+sendMessageButton.onclick = () => {
+  const message = chatInput.value.trim();
+  if (message) {
+    sendMessage({ id: 'chat', from: name, message, userId });
+    console.log('============sendMessageButton===========================', userId)
+    displayMessage(name, message, true); // Display local message
+    chatInputBox.value = '';
+  }
+};
+
+
+// Function to display messages in the chat box
+function displayMessage(from, message, isLocal) {
+  console.log('==============displayMessage==========')
+  const messageElement = document.createElement('div');
+  messageElement.classList.add('message', isLocal ? 'local' : 'remote');
+  messageElement.innerHTML = `
+    <div>
+      <div class="username">${from}</div>
+      <div class="bubble">${message}</div>
+      <div class="timestamp">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+    </div>
+  `;
+
+  chatBox.appendChild(messageElement);
+  chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest message
+  console.log('==============displayMessage==========end')
+}
+
   // ✅ Remove participant on disconnect
   function removeParticipant (participantId) {
     console.log(`👋 Removing participant with ID: ${participantId}`);
@@ -46,7 +77,7 @@ raiseHandButton.onclick = () => raiseHand();
     if (mid && remoteVideos[mid]) {
       // Stop the stream
       remoteVideos[mid].srcObject.getTracks().forEach(track => track.stop());
-
+      remoteVideos[mid].srcObject = null;
       // Remove the video element from the DOM
       remoteVideos[mid].parentNode.removeChild(remoteVideos[mid]);
 
@@ -162,21 +193,11 @@ function stopCall() {
   localStream.getTracks().forEach(track => track.stop());
 }
 
-// function sendMessage() {
-//   console.log('sendMessage', ws.readyState, WebSocket.OPEN);
-//   const message = document.getElementById('chatInput').value;
 
-//   if (ws.readyState === WebSocket.OPEN) {
-//     ws.send(JSON.stringify({ id: 'chat', from: name, message }));
-//   } else {
-//     console.error('WebSocket is not open. Current state:', ws.readyState);
-//   }
-// }
-
-
-function sendMessage({ id, from, message }) {
+function sendMessage({ id, from, message, userId }) {
+  console.log('sendMessageTextBox', message);
   if (ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify({ id, from, message }));
+    ws.send(JSON.stringify({ id, from, message,userId }));
   } else {
     console.error('WebSocket is not open. Current state:', ws.readyState);
   }
@@ -190,21 +211,67 @@ function raiseHand() {
   ws.send(JSON.stringify({ id: 'emoji', from: name, emoji: '✋' }));
 }
 
+// async function shareScreen() {
+//   if (!isScreenSharing) {
+//     try {
+//       const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+//       const screenTrack = screenStream.getTracks()[0];
+
+//       peerConnection.addTrack(screenTrack, screenStream);
+//       isScreenSharing = true;
+
+//       screenTrack.onended = () => stopScreenSharing();
+//     } catch (err) {
+//       console.error('Error sharing screen:', err);
+//     }
+//   }
+// }
+
 async function shareScreen() {
   if (!isScreenSharing) {
     try {
-      const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: {
+          cursor: "always",
+          displaySurface: "monitor"
+        },
+        audio: false
+      });
+
       const screenTrack = screenStream.getTracks()[0];
 
-      peerConnection.addTrack(screenTrack, screenStream);
+      // Replace existing track if present
+      const senders = peerConnection.getSenders();
+      const videoSender = senders.find(sender => sender.track && sender.track.kind === 'video');
+      
+      if (videoSender) {
+        videoSender.replaceTrack(screenTrack);
+      } else {
+        peerConnection.addTrack(screenTrack, screenStream);
+      }
+
       isScreenSharing = true;
 
+      // Handle stopping the screen share
       screenTrack.onended = () => stopScreenSharing();
+      
     } catch (err) {
-      console.error('Error sharing screen:', err);
+      if (err.name === 'NotAllowedError') {
+        console.error('Permission denied: User denied screen sharing.');
+        alert('You need to allow screen sharing permissions.');
+      } else if (err.name === 'NotFoundError') {
+        console.error('No display media devices found.');
+      } else if (err.name === 'AbortError') {
+        console.error('Screen sharing aborted.');
+      } else if (err.name === 'SecurityError') {
+        console.error('Screen sharing is blocked due to security settings.');
+      } else {
+        console.error('Error sharing screen:', err);
+      }
     }
   }
 }
+
 
 function stopScreenSharing() {
   isScreenSharing = false;
@@ -273,8 +340,11 @@ function connectWebSocket() {
 
     switch (data.id) {
       case 'chatMessage':
-        const chatBox = document.getElementById('chatBox');
-        chatBox.innerHTML += `<p><strong>${data.from}:</strong> ${data.message}</p>`;
+        // const chatBox = document.getElementById('chatBox');
+        // chatBox.innerHTML += `<p><strong>${data.from}:</strong> ${data.message}</p>`;
+        console.log('=========================chatMessage=======================', data.userId, ws.id);
+        if(data.userId && data.userId !==userId)
+        displayMessage(data.from, data.message, false);
         break;
       case 'emoji':
         showEmoji(data.from, data.emoji);

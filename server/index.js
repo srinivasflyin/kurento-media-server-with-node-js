@@ -232,7 +232,8 @@ wss.on('connection', (ws) => {
         addParticipant(ws, data.sdpOffer, data.name);
         break;
       case 'chat':
-        broadcastMessage({ id: 'chatMessage', from: data.from, message: data.message });
+        console.log(data, 'daaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+        broadcastMessage({ id: 'chatMessage', from: data.from, message: data.message, userId: data.userId });
         break;
       case 'emoji':
         handleEmoji(ws, data.emoji);

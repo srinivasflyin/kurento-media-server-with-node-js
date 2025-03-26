@@ -1,9 +1,3 @@
-version: '3.8'
-
-networks:
-  intranet:
-    driver: bridge
-
 services:
   kurento-media-server:
     build:
@@ -41,3 +35,7 @@ services:
       - kurento-media-server
     networks:
       - intranet
+networks:
+  intranet:
+    driver: bridge
+
